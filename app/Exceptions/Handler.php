@@ -47,8 +47,8 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        // get the response handel it's cors and then throw exception
-        $response = this->handleException($request, $exception);
+        // get the response handel it's cors and then throw exc
+        $response = $this->handleException($request, $exception);
         app(CorsService::class)->addActualRequestHeaders($response, $request);
         return $response;
     }
