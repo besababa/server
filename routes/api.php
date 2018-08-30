@@ -12,15 +12,21 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::group(['middleware' => 'api'], function(){
 
-Route::group(['middleware' => 'api'], function() {
+  // login and signin user
+  Route::post('login', 'API\UserController@login');
+  Route::post('register', 'API\UserController@register');
 
-  Route::get('/', function () {
-      return response()->json('welcome', 200);
-  });
+  // all routes must have token
+  Route::group(['middleware' => 'auth'], function(){
 
-  Route::middleware('auth')->get('/user', function (Request $request) {
-      return $request->user();
+    //users
+    Route::post('/user', 'API\UserController@show');
+
+    //events
+
+
   });
 
 });
