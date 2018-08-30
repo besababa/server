@@ -14,18 +14,31 @@ use Illuminate\Http\Request;
 */
 Route::group(['middleware' => 'api'], function(){
 
-  // login and signin user
+  // Login and signin user
   Route::post('login', 'API\UserController@login');
   Route::post('register', 'API\UserController@register');
 
-  // all routes must have token
+  Route::prefix('events')->group(function () {
+
+    // Event helpers
+    Route::get('/titles', 'API\EventController@titleOptions');
+    Route::post('/images', 'API\EventController@fetchDefaultImages');
+
+    // Event for pre authenticated user
+    Route::post('/', 'API\EventController@createEvent');
+    Route::put('/', 'API\EventController@startUpdateEvent');
+    Route::post('/upload/event-image', 'API\EventController@uploadEventImage');
+    Route::get('/{id}','API\EventController@getEvent');
+
+  });
+
+  // All routes that must have auth token
   Route::group(['middleware' => 'auth'], function(){
 
-    //users
+    // Users
     Route::post('/user', 'API\UserController@show');
 
-    //events
-
+    // Events
 
   });
 
