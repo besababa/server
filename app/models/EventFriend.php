@@ -1,10 +1,10 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class event_friends extends Model
+class EventFriend extends Model
 {
     //
 }
