@@ -1,11 +1,8 @@
 <?php
-
 namespace App\Exceptions;
 
 use Exception;
-use Barryvdh\Cors\CorsService;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-
 class Handler extends ExceptionHandler
 {
     /**
@@ -16,7 +13,6 @@ class Handler extends ExceptionHandler
     protected $dontReport = [
         //
     ];
-
     /**
      * A list of the inputs that are never flashed for validation exceptions.
      *
@@ -26,7 +22,6 @@ class Handler extends ExceptionHandler
         'password',
         'password_confirmation',
     ];
-
     /**
      * Report or log an exception.
      *
@@ -37,7 +32,6 @@ class Handler extends ExceptionHandler
     {
         parent::report($exception);
     }
-
     /**
      * Render an exception into an HTTP response.
      *
@@ -46,14 +40,6 @@ class Handler extends ExceptionHandler
      * @return \Illuminate\Http\Response
      */
     public function render($request, Exception $exception)
-    {
-        // get the response handel it's cors and then throw exc
-        $response = $this->handleException($request, $exception);
-        app(CorsService::class)->addActualRequestHeaders($response, $request);
-        return $response;
-    }
-
-    public function handleException($request, Exception $exception)
     {
         return parent::render($request, $exception);
     }

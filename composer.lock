@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "e30725e08d3695dfdd3d278c1b2fb70a",
-    "content-hash": "c60e99198db4a252d8ecdbeb5fb02b63",
+    "hash": "9080a8cb33147774223669de07127873",
+    "content-hash": "798418d793f63d4463f50c5921ad5b5f",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -2058,6 +2058,46 @@
                 "uuid"
             ],
             "time": "2018-07-19 23:38:55"
+        },
+        {
+            "name": "rfreebern/giphy-php",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rfreebern/giphy-php.git",
+                "reference": "131065011f429ba42e05cfb84689c316600f13e2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rfreebern/giphy-php/zipball/131065011f429ba42e05cfb84689c316600f13e2",
+                "reference": "131065011f429ba42e05cfb84689c316600f13e2",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "rfreebern": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "CC0-1.0"
+            ],
+            "authors": [
+                {
+                    "name": "Ryan Freebern",
+                    "email": "ryan@freebern.org"
+                }
+            ],
+            "description": "A library implementing access to the Giphy API.",
+            "keywords": [
+                "gif",
+                "gifs",
+                "giphy",
+                "images",
+                "search"
+            ],
+            "time": "2018-03-25 21:17:41"
         },
         {
             "name": "swiftmailer/swiftmailer",
@@ -4978,6 +5018,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "rfreebern/giphy-php": 20,
         "zizaco/entrust": 20
     },
     "prefer-stable": true,

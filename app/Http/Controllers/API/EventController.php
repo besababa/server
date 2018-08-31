@@ -16,8 +16,21 @@ class EventController extends Controller {
   }
 
   public function fetchDefaultImages(Request $request) {
-      // TODO:
-      return response()->json('fetchDefaultImages', 200);
+      $images = [];
+      $request = $request->only('title');
+      $title = $request['title'];
+      $giphy = new \rfreebern\Giphy(env('GPH'));
+      $results = $giphy->search($title, $limit = 5);
+
+      if($results->data){
+        foreach ($results->data as $gif) {
+            $images[] = [
+              'url' => $gif->images->fixed_height->url
+            ];
+        }
+      }
+
+      return response()->json(['images' => $images], 200);
   }
 
   public function createEvent(Request $request) {
