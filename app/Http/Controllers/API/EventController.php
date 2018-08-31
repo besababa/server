@@ -4,12 +4,15 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class EventController extends Controller {
 
   public function titleOptions(Request $request) {
-      // TODO:
-      return response()->json('titleOptions', 200);
+      $now = \Carbon\Carbon::now()->format('dm');
+      $title = DB::table('on_this_day')->where('current_day',$now)
+      ->where('status',1)->value('title');
+      return response()->json(['titles' => [$title]], 200);
   }
 
   public function fetchDefaultImages(Request $request) {
