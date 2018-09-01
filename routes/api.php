@@ -20,27 +20,30 @@ Route::group(['middleware' => 'api'], function(){
   Route::post('login', 'API\UserController@login');
   Route::post('register', 'API\UserController@register');
 
-  Route::prefix('events')->group(function () {
+  
+  Route::get('events/titles', 'API\EventController@titleOptions');
+  Route::post('events', 'API\EventController@createEvent');
 
-    // Event helpers
-    Route::get('/titles', 'API\EventController@titleOptions');
-    Route::post('/images', 'API\EventController@fetchDefaultImages');
 
-    // Event for pre authenticated user
-    Route::post('/', 'API\EventController@createEvent');
-    Route::put('/', 'API\EventController@startUpdateEvent');
-    Route::post('/upload/event-image', 'API\EventController@uploadEventImage');
-    Route::get('/{id}','API\EventController@getEvent');
-
-  });
 
   // All routes that must have auth token
-  Route::group(['middleware' => 'auth'], function(){
+  Route::group(['middleware' => 'auth:api'], function(){
 
     // Users
     Route::post('/user', 'API\UserController@show');
 
     // Events
+
+    Route::prefix('events')->group(function () {
+
+      // Event helpers
+      Route::post('/images', 'API\EventController@fetchDefaultImages');
+
+      Route::post('/update', 'API\EventController@startUpdateEvent');
+      Route::post('/upload/event-image', 'API\EventController@uploadEventImage');
+      Route::get('/{id}','API\EventController@getEvent');
+
+    });
 
   });
 

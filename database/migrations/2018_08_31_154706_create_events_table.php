@@ -23,18 +23,17 @@ class CreateEventsTable extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('user_id');
-            $table->boolean('published');
-            $table->string('image', 100);
+            $table->integer('user_id')->unsigned();
+            $table->boolean('published')->default(0);
+            $table->string('image', 100)->nullable();
             $table->string('title', 100);
-            $table->dateTime('start_date');
-            $table->dateTime('end_date');
-            $table->text('description');
+            $table->dateTime('start_date')->nullable();
+            $table->dateTime('end_date')->nullable();
+            $table->text('description')->nullable();
             $table->timestamps();
-            $table->index(['title', 'start_date','end_date','published']);
+            $table->index(['user_id','title', 'start_date','end_date','published']);
 
-
-
+            
         });
     }
 

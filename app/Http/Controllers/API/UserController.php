@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\User;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Validator;
 
@@ -15,10 +15,13 @@ class UserController extends Controller {
      * @return \Illuminate\Http\Response
     */
     public function login(){
+
         if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){
+
             $user = Auth::user();
-            $success['token'] =  $user->createToken('MyApp')-> accessToken;
-            return response()->json(['success' => $success], 200);
+            $token =  $user->createToken('auth')->accessToken;
+
+            return response()->json(['token' => $token], 200);
         }
         else{
             return response()->json(['error'=>'Unauthorised'], 401);
@@ -39,14 +42,33 @@ class UserController extends Controller {
         ]);
 
         if ($validator->fails())
-                    return response()->json(['error'=>$validator->errors()], 401);
+            return response()->json(['error'=>$validator->errors()], 401);
 
-        $input = $request->all();
+        $input = $request->only(['name','email','password']);
+
+        $user = User::where('email',$input['email'])->first();
+
+        if($user ){
+
+            return response()->json(['error'=>'User already exist'], 401);
+        }
 
         $input['password'] = bcrypt($input['password']);
-        $user = User::create($input);
 
-        $success['token'] =  $user->createToken('MyApp')-> accessToken;
+        $user = auth()->guard('api')->user();
+
+        // if the user is anonymous or he is already active create new user
+        // we don't want to update user that existing and active
+        if(!$user || $user->status){
+            $user = new User();
+        }
+
+        $user->email = $input['email'];
+        $user->name = $input['name'];
+        $user->password = $input['password'];
+        $user->save();
+
+        $success['token'] =  $user->createToken('auth')->accessToken;
         $success['name'] =  $user->name;
 
         return response()->json(['success'=>$success], 200);
