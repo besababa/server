@@ -127,9 +127,16 @@ class EventController extends Controller {
       return response()->json('uploadEventImage', 200);
   }
 
-  public function getEvent(Request $request) {
-      // TODO:
-      return response()->json('getEvent', 200);
+  public function getEvent($id) {
+
+      $user = auth()->guard('api')->user();
+
+      $event = Event::where('id',$id)->where('user_id',$user->id)->first();
+
+      if(!$event){
+          return response()->json(['error'=>'Event not found'], 404);
+      }
+      return response()->json(compact('event'), 200);
   }
 
 }
