@@ -76,12 +76,10 @@ class EventController extends Controller {
 
   public function startUpdateEvent(Request $request) {
 
-      $data = $request->all();
-
-      dd($data);
+      $data = $request->only(['id','title','image','start_date','description']);
 
       $roles = [
-          'id' => 'required|number',
+          'id' => 'required|alpha_num',
           'title' => 'required|max:255',
       ];
 
@@ -119,12 +117,9 @@ class EventController extends Controller {
           return response()->json(['error'=>' Internal Server Error'], 500);
       }
 
+      $token =  $user->createToken('auth')->accessToken;
 
-
-      dd($event);
-
-
-      return response()->json('startUpdateEvent', 200);
+      return response()->json(['event'=>$event,'token'=>$token], 200);
   }
 
   public function uploadEventImage(Request $request) {
