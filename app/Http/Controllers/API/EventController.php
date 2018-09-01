@@ -86,8 +86,11 @@ class EventController extends Controller {
       if(!empty($data['image'])){
           $roles['image'] = 'string|min:5|max:255';
       }
+
+
       if(!empty($data['start_date'])){
-          $roles['start_date'] = 'date:';
+          $data['start_date'] = date("Y-m-d H:i:s", strtotime($data['start_date']));
+          $roles['start_date'] = 'date';
       }
       if(!empty($data['description'])){
           $roles['description'] = 'string';
@@ -117,9 +120,7 @@ class EventController extends Controller {
           return response()->json(['error'=>' Internal Server Error'], 500);
       }
 
-      $token =  $user->createToken('auth')->accessToken;
-
-      return response()->json(['event'=>$event,'token'=>$token], 200);
+      return response()->json($event, 200);
   }
 
   public function uploadEventImage(Request $request) {
@@ -133,10 +134,11 @@ class EventController extends Controller {
 
       $event = Event::where('id',$id)->where('user_id',$user->id)->first();
 
+      $event->start_date = (!empty( $event->start_date))?date("d/m/Y", strtotime($event->start_date)):null;
       if(!$event){
           return response()->json(['error'=>'Event not found'], 404);
       }
-      return response()->json(compact('event'), 200);
+      return response()->json($event, 200);
   }
 
 }
