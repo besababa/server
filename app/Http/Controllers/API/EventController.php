@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Validator;
 
 use App\Models\Event;
@@ -87,11 +88,11 @@ class EventController extends Controller {
           $roles['image'] = 'string|min:5|max:255';
       }
 
-
       if(!empty($data['start_date'])){
           $data['start_date'] = date("Y-m-d H:i:s", strtotime($data['start_date']));
           $roles['start_date'] = 'date';
       }
+
       if(!empty($data['description'])){
           $roles['description'] = 'string';
       }
@@ -114,6 +115,10 @@ class EventController extends Controller {
           return response()->json(['error'=>'Event not found'], 404);
       }
 
+      //// TODO: remove image if exists
+      //$exists = Storage::disk('spaces')->exists('temp/wTg4zPPKrsAnWuM8uCG38LqfiqSptcrME5BRBUxg.png');
+      //$time = Storage::disk('spaces')->move('temp/wTg4zPPKrsAnWuM8uCG38LqfiqSptcrME5BRBUxg.png', '/images/wTg4zPPKrsAnWuM8uCG38LqfiqSptcrME5BRBUxg.png');
+
       $result = $event->update($data);
 
       if(!$result){
@@ -124,8 +129,10 @@ class EventController extends Controller {
   }
 
   public function uploadEventImage(Request $request) {
-      // TODO:
-      return response()->json('uploadEventImage', 200);
+      $file = Storage::disk('spaces')
+      ->putFile('temp', $request->file('eventImage'), 'public');
+      $url = env('SPACES_ORIGIN_URL') .$file;
+      return response()->json(['url' => $url], 200);
   }
 
   public function getEvent($id) {

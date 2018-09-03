@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Storage;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -13,18 +13,14 @@ use Illuminate\Http\Request;
 |
 */
 
-
 Route::group(['middleware' => 'api'], function(){
 
   // Login and signin user
   Route::post('login', 'API\UserController@login');
   Route::post('register', 'API\UserController@register');
 
-  
   Route::get('events/titles', 'API\EventController@titleOptions');
   Route::post('events', 'API\EventController@createEvent');
-
-
 
   // All routes that must have auth token
   Route::group(['middleware' => 'auth:api'], function(){
@@ -38,7 +34,7 @@ Route::group(['middleware' => 'api'], function(){
 
       // Event helpers
       Route::post('/images', 'API\EventController@fetchDefaultImages');
-
+      
       Route::post('/update', 'API\EventController@startUpdateEvent');
       Route::post('/upload/event-image', 'API\EventController@uploadEventImage');
       Route::get('/{id}','API\EventController@getEvent');
