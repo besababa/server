@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 
 Route::group(['middleware' => 'api'], function(){
 
+  Route::get('health', 'API\HealthController@check');
   // Login and signin user
   Route::post('login', 'API\UserController@login');
   Route::post('register', 'API\UserController@register');
