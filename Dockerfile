@@ -4,7 +4,7 @@ ADD . /var/www/
 WORKDIR /var/www
 
 RUN apt-get update &&\
-    apt-get install git &&\
+    apt-get install -y git &&\
     rm -rf /var/lib/apt/lists/* &&\
     curl https://getcomposer.org/installer > install-composer.php &&\
     php install-composer.php --install-dir=/usr/local/bin --filename=composer &&\
