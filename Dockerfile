@@ -3,7 +3,10 @@ FROM php:7-fpm
 ADD . /var/www/
 WORKDIR /var/www
 
-RUN curl https://getcomposer.org/installer > install-composer.php &&\
+RUN apt-get update &&\
+    apt-get install git &&\
+    rm -rf /var/lib/apt/lists/* &&\
+    curl https://getcomposer.org/installer > install-composer.php &&\
     php install-composer.php --install-dir=/usr/local/bin --filename=composer &&\
     rm  install-composer.php &&\
     composer install &&\
