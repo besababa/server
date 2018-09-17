@@ -131,6 +131,7 @@ class EventController extends Controller {
   public function uploadEventImage(Request $request) {
       $file = Storage::disk('spaces')
       ->putFile('temp', $request->file('eventImage'), 'public');
+      
       $url = env('SPACES_ORIGIN_URL') .$file;
       return response()->json(['url' => $url], 200);
   }
@@ -141,11 +142,39 @@ class EventController extends Controller {
 
       $event = Event::where('id',$id)->where('user_id',$user->id)->first();
 
-      $event->start_date = (!empty( $event->start_date))?date("d/m/Y", strtotime($event->start_date)):null;
       if(!$event){
           return response()->json(['error'=>'Event not found'], 404);
       }
+
+      $event->start_date = (!empty( $event->start_date))?date("d/m/Y", strtotime($event->start_date)):null;
+
       return response()->json($event, 200);
   }
+
+    public function getEvents(){
+
+        $user = auth()->guard('api')->user();
+
+        $events = Event::select('id','title','image','start_date','end_date','description')
+            ->where('user_id',$user->id)
+            ->whereNotNull('title')
+            ->whereNotNull('image')
+            ->get();
+
+        $events = ($events)?$events->toArray():[];
+
+        return response()->json($events, 200);
+    }
+
+    public function getEventSupply($id){
+
+        return response()->json([], 200);
+    }
+
+    public function getEventNotifications(){
+
+
+        return response()->json([], 200);
+    }
 
 }
