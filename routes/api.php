@@ -33,6 +33,10 @@ Route::group(['middleware' => 'api'], function(){
 
     Route::prefix('events')->group(function () {
 
+      Route::get('/apps','API\EventController@getApps');
+
+      Route::get('/{event_id}/event-apps','API\EventController@getEventApps');
+
       Route::get('/{id}/supply','API\EventController@getEventSupply');
       // Event helpers
       Route::post('/images', 'API\EventController@fetchDefaultImages');

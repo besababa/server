@@ -166,6 +166,25 @@ class EventController extends Controller {
         return response()->json($events, 200);
     }
 
+    public function getEventApps($event_id){
+
+        $apps = [
+            ['title'=>'Albums','image'=>'http://www.jmkxyy.com/icon-gallery/icon-gallery-13.jpg'],
+            ['title'=>'Games','image'=>'https://aarp.cdn.arkadiumhosted.com/4.0-aarp/Content/Images/default/600x600_gameicon.jpg']
+        ];
+        return response()->json($apps, 200);
+    }
+
+    public function getApps(){
+
+        $apps = [
+            ['title'=>'Albums','image'=>'http://www.jmkxyy.com/icon-gallery/icon-gallery-13.jpg'],
+            ['title'=>'Games','image'=>'https://aarp.cdn.arkadiumhosted.com/4.0-aarp/Content/Images/default/600x600_gameicon.jpg']
+        ];
+
+        return response()->json($apps, 200);
+
+    }
     public function getEventSupply($id){
 
         return response()->json([], 200);
