@@ -17,11 +17,11 @@ class CreateEventFriendsTable extends Migration
             $table->increments('id');
             $table->integer('user_id')->unsigned();
             $table->integer('event_id')->unsigned();
-            $table->tinyInteger('event_permission')->unsigned();
-            $table->boolean('status');
+            $table->tinyInteger('permission')->unsigned();
+            $table->tinyInteger('status');
             $table->timestamps();
 
-            $table->index(['user_id', 'event_id','status']);
+            $table->index(['user_id', 'event_id']);
 
         });
     }

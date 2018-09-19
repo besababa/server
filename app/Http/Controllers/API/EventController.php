@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Validator;
 
 use App\Models\Event;
+use App\Models\EventFriend;
 use App\Models\User;
 
 
@@ -70,6 +71,13 @@ class EventController extends Controller {
       $event = Event::create([
           'title'=>$data['title'],
           'user_id'=>$user->id
+      ]);
+
+      EventFriend::create([
+          'user_id'=>$user->id,
+          'event_id'=>$event->id,
+          'permission'=>1,
+          'status'=>1
       ]);
 
       return response()->json(['event'=>$event,'token'=>$token],200);
@@ -155,10 +163,12 @@ class EventController extends Controller {
 
         $user = auth()->guard('api')->user();
 
-        $events = Event::select('id','title','image','start_date','end_date','description')
-            ->where('user_id',$user->id)
-            ->whereNotNull('title')
-            ->whereNotNull('image')
+        $events = EventFriend::select('events.id','events.title','events.image','events.start_date','events.end_date','events.description')
+            ->join('events','events.id','=','event_friends.event_id')
+            ->where('event_friends.user_id',$user->id)
+            ->whereNotNull('events.title')
+            ->whereNotNull('events.image')
+            ->orderBy('events.id','desc')
             ->get();
 
         $events = ($events)?$events->toArray():[];

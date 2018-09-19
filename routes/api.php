@@ -36,19 +36,28 @@ Route::group(['middleware' => 'api'], function(){
     Route::prefix('events')->group(function () {
 
       Route::get('/apps','API\EventController@getApps');
-
-      Route::get('/{event_id}/event-apps','API\EventController@getEventApps');
-
-      Route::get('/{id}/supply','API\EventController@getEventSupply');
-      // Event helpers
       Route::post('/images', 'API\EventController@fetchDefaultImages');
-      
       Route::post('/update', 'API\EventController@startUpdateEvent');
       Route::post('/upload/event-image', 'API\EventController@uploadEventImage');
       Route::get('/user','API\EventController@getEvents');
 
-      Route::get('/{id}/notifications','API\EventController@getEventNotifications');
-      Route::get('/{id}','API\EventController@getEvent');
+
+      Route::prefix('{event_id}')->group(function () {
+
+
+        Route::get('/','API\EventController@getEvent');
+
+        Route::get('/apps','API\EventController@getEventApps');
+        
+        
+        Route::get('/friends','API\EventFriendsController@getEventFriends');
+        
+        
+        Route::get('/notifications','API\EventController@getEventNotifications');
+        Route::get('/supply','API\EventController@getEventSupply');
+        
+
+      });
 
 
     });
