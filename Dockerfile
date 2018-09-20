@@ -14,5 +14,6 @@ ADD apache/000-default.conf /etc/apache2/sites-enabled/000-default.conf
 
 
 RUN composer install &&\
+    php artisan passport:install &&\
     chown www-data: /var/www -R
 
