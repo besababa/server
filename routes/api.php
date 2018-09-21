@@ -18,10 +18,15 @@ Route::group(['middleware' => 'api'], function(){
   // Health check
   Route::get('/health', 'API\HealthCheckController@healthCheck');
 
-  // Login and signin user
+  // Regular login and sign in user
   Route::post('login', 'API\UserController@login');
   Route::post('register', 'API\UserController@register');
 
+  // Google and Facebook login
+  Route::get('login/{provider}', 'Auth\LoginController@redirectToProvider');
+  Route::get('login/{provider}/callback', 'Auth\LoginController@handleProviderCallback');
+
+  // Start app routes
   Route::get('events/titles', 'API\EventController@titleOptions');
   Route::post('events', 'API\EventController@createEvent');
 
@@ -32,7 +37,6 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/user', 'API\UserController@show');
 
     // Events
-
     Route::prefix('events')->group(function () {
 
       Route::get('/apps','API\EventController@getApps');
@@ -55,10 +59,8 @@ Route::group(['middleware' => 'api'], function(){
         
         Route::get('/notifications','API\EventController@getEventNotifications');
         Route::get('/supply','API\EventController@getEventSupply');
-        
 
       });
-
 
     });
 

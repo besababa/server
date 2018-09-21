@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Socialite;
 
 class LoginController extends Controller
 {
@@ -35,5 +36,29 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+    }
+
+    /**
+     * Redirect the user to the provider authentication page.
+     * @var string $provider
+     * @return \Illuminate\Http\Response
+     */
+    public function redirectToProvider($provider)
+    {
+        return Socialite::driver($provider)->stateless()->redirect();
+    }
+
+    /**
+     * Obtain the user information from provider.
+     * @var string $provider
+     * @return \Illuminate\Http\Response
+     */
+    public function handleProviderCallback($provider)
+    {
+        $user = Socialite::driver($provider)->stateless()->user();
+
+        // $user->token;
+
+        return response()->json($user, 200);
     }
 }

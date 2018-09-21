@@ -15,12 +15,12 @@ use App\Models\User;
 
 class EventController extends Controller {
 
-    public function titleOptions(Request $request) {
+   public function titleOptions() {
       $now = \Carbon\Carbon::now()->format('dm');
       $title = DB::table('on_this_day')->where('current_day',$now)
       ->where('status',1)->value('title');
       return response()->json(['titles' => [$title]], 200);
-  }
+   }
 
   public function fetchDefaultImages(Request $request) {
       $images = [];
@@ -93,7 +93,13 @@ class EventController extends Controller {
       ];
 
       if(!empty($data['image'])){
-          $roles['image'] = 'image|string|min:5|max:255';
+          $roles['image'] = 'string|min:5|max:255';
+
+          //upload image from device
+          if (strpos($data['image'], env('SPACES_ORIGIN_URL')) !== false) {
+              $oldImage = str_replace(env('SPACES_ORIGIN_URL'),'',$data['image']);
+              $newImage = str_replace('temp','/images',$oldImage);
+          }
       }
 
       if(!empty($data['start_date'])){
@@ -123,9 +129,23 @@ class EventController extends Controller {
           return response()->json(['error'=>'Event not found'], 404);
       }
 
-      //// TODO: remove image if exists
-      //$exists = Storage::disk('spaces')->exists('temp/wTg4zPPKrsAnWuM8uCG38LqfiqSptcrME5BRBUxg.png');
-      //$time = Storage::disk('spaces')->move('temp/wTg4zPPKrsAnWuM8uCG38LqfiqSptcrME5BRBUxg.png', '/images/wTg4zPPKrsAnWuM8uCG38LqfiqSptcrME5BRBUxg.png');
+      if(isset($oldImage) && isset($newImage)){
+          $exists = Storage::disk('spaces')->exists($oldImage);
+
+          if(!$exists){
+              return response()->json(
+                  ['error'=>"Image doesn't exists please upload a new one again"], 422);
+          }
+
+          $response = Storage::disk('spaces')->move($oldImage, $newImage);
+
+          if(!$response){
+              return response()->json(
+                  ['error'=>'User image not properly saved please upload a new one again'], 422);
+          }
+
+          $data['image'] = env('SPACES_ORIGIN_URL') . ltrim($newImage, '/');
+      }
 
       $result = $event->update($data);
 
@@ -137,6 +157,15 @@ class EventController extends Controller {
   }
 
   public function uploadEventImage(Request $request) {
+
+      $validator = Validator::make($request->only(['eventImage']), [
+          'eventImage' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+      ]);
+
+      if ($validator->fails()) {
+          return response()->json($validator->errors(),400);
+      }
+
       $file = Storage::disk('spaces')
       ->putFile('temp', $request->file('eventImage'), 'public');
 
