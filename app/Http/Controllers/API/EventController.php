@@ -93,7 +93,7 @@ class EventController extends Controller {
       ];
 
       if(!empty($data['image'])){
-          $roles['image'] = 'string|min:5|max:255';
+          $roles['image'] = 'image|string|min:5|max:255';
       }
 
       if(!empty($data['start_date'])){
@@ -139,7 +139,7 @@ class EventController extends Controller {
   public function uploadEventImage(Request $request) {
       $file = Storage::disk('spaces')
       ->putFile('temp', $request->file('eventImage'), 'public');
-      
+
       $url = env('SPACES_ORIGIN_URL') .$file;
       return response()->json(['url' => $url], 200);
   }
