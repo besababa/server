@@ -23,6 +23,8 @@ Route::group(['middleware' => 'api'], function(){
   Route::post('register', 'API\UserController@register');
 
   // Google and Facebook login
+  Route::post('auth/social', 'Auth\LoginController@socialSignIn');
+
   Route::get('login/{provider}', 'Auth\LoginController@redirectToProvider');
   Route::get('login/{provider}/callback', 'Auth\LoginController@handleProviderCallback');
 
@@ -42,7 +44,7 @@ Route::group(['middleware' => 'api'], function(){
       Route::get('/apps','API\EventController@getApps');
       Route::post('/images', 'API\EventController@fetchDefaultImages');
       Route::post('/update', 'API\EventController@startUpdateEvent');
-      Route::post('/upload/event-image', 'API\EventController@uploadEventImage');
+      Route::post('{event_id}/upload/event-image', 'API\EventController@uploadEventImage');
       Route::get('/user','API\EventController@getEvents');
 
 

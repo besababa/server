@@ -156,7 +156,9 @@ class EventController extends Controller {
       return response()->json($event, 200);
   }
 
-  public function uploadEventImage(Request $request) {
+  public function uploadEventImage(Request $request,$event_id) {
+
+
 
       $validator = Validator::make($request->only(['eventImage']), [
           'eventImage' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -165,11 +167,25 @@ class EventController extends Controller {
       if ($validator->fails()) {
           return response()->json($validator->errors(),400);
       }
+      $user = auth()->guard('api')->user();
+
+      $event = Event::where('id',$event_id)->where('user_id',$user->id)->first();
+
+      if(!$event){
+          return response()->json(['message' => 'Forbidden' ], 403);
+      }
 
       $file = Storage::disk('spaces')
       ->putFile('temp', $request->file('eventImage'), 'public');
 
+      if(!$file){
+          return response()->json(['message' => 'Service Unavailable' ], 503);
+      }
+
       $url = env('SPACES_ORIGIN_URL') .$file;
+
+      $event->update(['image'=>$url]);
+      
       return response()->json(['url' => $url], 200);
   }
 
