@@ -15,14 +15,14 @@ use App\Models\User;
 
 class EventController extends Controller {
 
-   public function titleOptions() {
+    public function titleOptions() {
       $now = \Carbon\Carbon::now()->format('dm');
       $title = DB::table('on_this_day')->where('current_day',$now)
       ->where('status',1)->value('title');
       return response()->json(['titles' => [$title]], 200);
-   }
+    }
 
-  public function fetchDefaultImages(Request $request) {
+    public function fetchDefaultImages(Request $request) {
       $images = [];
       $request = $request->only('title');
       $title = $request['title'];
@@ -38,9 +38,9 @@ class EventController extends Controller {
       }
 
       return response()->json(['images' => $images], 200);
-  }
+    }
 
-  public function createEvent(Request $request) {
+    public function createEvent(Request $request) {
 
       $validator = Validator::make($request->all(), [
           'title' => 'required|max:255',
@@ -81,9 +81,69 @@ class EventController extends Controller {
       ]);
 
       return response()->json(['event'=>$event,'token'=>$token],200);
-  }
+    }
 
-  public function startUpdateEvent(Request $request) {
+    public function eventImageToCarousel(Request $request) {
+
+        $validator = Validator::make($request->only(['eventImage']), [
+            'eventImage' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(),400);
+        }
+
+        $file = Storage::disk('spaces')
+            ->putFile('temp', $request->file('eventImage'), 'public');
+
+        $url = env('SPACES_ORIGIN_URL') .$file;
+        return response()->json(['url' => $url], 200);
+    }
+
+    public function updateEventImage(Request $request,$event_id) {
+
+        $validator = Validator::make($request->only(['eventImage']), [
+            'eventImage' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(),400);
+        }
+
+        $user = auth()->guard('api')->user();
+        $event = Event::where('id',$event_id)->where('user_id',$user->id)->first();
+        if(!$event){
+            return response()->json(['message' => 'Forbidden' ], 403);
+        }
+
+        $oldEventImage = str_replace(env('SPACES_ORIGIN_URL'),'',$event->image);
+        $newEventImage = $request->file('eventImage');
+
+        $exists = Storage::disk('spaces')->exists($oldEventImage);
+        if(!$exists){
+            return response()->json(
+                ['error'=>"Image doesn't exists please upload a new one again"], 422);
+        }
+
+        $oldImage = explode('/',$oldEventImage);
+
+        $newEventImage = $oldImage[0] . '/' . $newEventImage;
+
+        $response = Storage::disk('spaces')->move($oldEventImage, $newEventImage);
+
+        if(!$response){
+            return response()->json(
+                ['error'=>'User image not properly saved please upload a new one again'], 422);
+        }
+
+        $url = env('SPACES_ORIGIN_URL') .$newEventImage;
+        $event->update(['image'=>$url]);
+
+        return response()->json(['url' => $url], 200);
+
+    }
+
+    public function startUpdateEvent(Request $request) {
 
       $data = $request->only(['id','title','image','start_date','description']);
 
@@ -95,11 +155,8 @@ class EventController extends Controller {
       if(!empty($data['image'])){
           $roles['image'] = 'string|min:5|max:255';
 
-          //upload image from device
-          if (strpos($data['image'], env('SPACES_ORIGIN_URL')) !== false) {
-              $oldImage = str_replace(env('SPACES_ORIGIN_URL'),'',$data['image']);
-              $newImage = str_replace('temp','/images',$oldImage);
-          }
+          // user upload image from device
+          $userUploadedImage = (strpos($data['image'], env('SPACES_ORIGIN_URL'))) ? true : false;
       }
 
       if(!empty($data['start_date'])){
@@ -129,7 +186,11 @@ class EventController extends Controller {
           return response()->json(['error'=>'Event not found'], 404);
       }
 
-      if(isset($oldImage) && isset($newImage)){
+      if(!empty($userUploadedImage)) {
+
+          $oldImage = str_replace(env('SPACES_ORIGIN_URL'),'',$data['image']);
+          $newImage = str_replace('temp','/event-image',$oldImage);
+
           $exists = Storage::disk('spaces')->exists($oldImage);
 
           if(!$exists){
@@ -154,42 +215,9 @@ class EventController extends Controller {
       }
 
       return response()->json($event, 200);
-  }
+    }
 
-  public function uploadEventImage(Request $request,$event_id) {
-
-
-
-      $validator = Validator::make($request->only(['eventImage']), [
-          'eventImage' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-      ]);
-
-      if ($validator->fails()) {
-          return response()->json($validator->errors(),400);
-      }
-      $user = auth()->guard('api')->user();
-
-      $event = Event::where('id',$event_id)->where('user_id',$user->id)->first();
-
-      if(!$event){
-          return response()->json(['message' => 'Forbidden' ], 403);
-      }
-
-      $file = Storage::disk('spaces')
-      ->putFile('temp', $request->file('eventImage'), 'public');
-
-      if(!$file){
-          return response()->json(['message' => 'Service Unavailable' ], 503);
-      }
-
-      $url = env('SPACES_ORIGIN_URL') .$file;
-
-      $event->update(['image'=>$url]);
-      
-      return response()->json(['url' => $url], 200);
-  }
-
-  public function getEvent($id) {
+    public function getEvent($id) {
 
       $user = auth()->guard('api')->user();
 
@@ -202,7 +230,7 @@ class EventController extends Controller {
       $event->start_date = (!empty( $event->start_date))?date("d/m/Y", strtotime($event->start_date)):null;
 
       return response()->json($event, 200);
-  }
+    }
 
     public function getEvents(){
 
@@ -240,14 +268,12 @@ class EventController extends Controller {
         return response()->json($apps, 200);
 
     }
-    public function getEventSupply($id){
 
+    public function getEventSupply($id){
         return response()->json([], 200);
     }
 
     public function getEventNotifications(){
-
-
         return response()->json([], 200);
     }
 

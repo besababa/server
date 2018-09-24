@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-//use GuzzleHttp\Psr7\Request;
 use App\Models\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Socialite;
 use Illuminate\Http\Request;
 use Validator;
 
@@ -38,13 +36,11 @@ class LoginController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {}
+    public function __construct(){
 
-
+    }
 
     public function socialSignIn(Request $request){
-
 
         $params = $request->only(['email','id','image','name','provider','token']);
 
@@ -57,9 +53,7 @@ class LoginController extends Controller
         if ($validator->fails())
             return response()->json(['error'=>$validator->errors()], 401);
 
-        $input = $request->only(['name','email','password']);
-
-        $user = User::where('email',$input['email'])->first();
+        $user = User::where('email',$params['email'])->first();
 
         $providerIdField = $params['provider'].'_id';
 
@@ -75,7 +69,6 @@ class LoginController extends Controller
             $user->save();
         }
 
-        
         $success['token'] =  $user->createToken('auth')->accessToken;
         $success['name'] =  $user->name;
         $success['image'] =  $user->pic_path;
@@ -84,27 +77,5 @@ class LoginController extends Controller
         return response()->json($success, 200);
 
     }
-    /**
-     * Redirect the user to the provider authentication page.
-     * @var string $provider
-     * @return \Illuminate\Http\Response
-     */
-    public function redirectToProvider($provider)
-    {
-        return Socialite::driver($provider)->stateless()->redirect();
-    }
 
-    /**
-     * Obtain the user information from provider.
-     * @var string $provider
-     * @return \Illuminate\Http\Response
-     */
-    public function handleProviderCallback($provider)
-    {
-        $user = Socialite::driver($provider)->stateless()->user();
-
-        // $user->token;
-
-        return response()->json($user, 200);
-    }
 }

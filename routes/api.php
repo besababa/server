@@ -1,18 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
-
 Route::group(['middleware' => 'api'], function(){
 
   // Health check
@@ -24,9 +11,6 @@ Route::group(['middleware' => 'api'], function(){
 
   // Google and Facebook login
   Route::post('auth/social', 'Auth\LoginController@socialSignIn');
-
-  Route::get('login/{provider}', 'Auth\LoginController@redirectToProvider');
-  Route::get('login/{provider}/callback', 'Auth\LoginController@handleProviderCallback');
 
   // Start app routes
   Route::get('events/titles', 'API\EventController@titleOptions');
@@ -43,8 +27,10 @@ Route::group(['middleware' => 'api'], function(){
 
       Route::get('/apps','API\EventController@getApps');
       Route::post('/images', 'API\EventController@fetchDefaultImages');
+      Route::post('/upload/event-image', 'API\EventController@eventImageToCarousel');
+      Route::post('/update/event-image/{event_id}', 'API\EventController@updateEventImage');
       Route::post('/update', 'API\EventController@startUpdateEvent');
-      Route::post('{event_id}/upload/event-image', 'API\EventController@uploadEventImage');
+
       Route::get('/user','API\EventController@getEvents');
 
 
