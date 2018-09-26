@@ -115,31 +115,19 @@ class EventController extends Controller {
         if(!$event){
             return response()->json(['message' => 'Forbidden' ], 403);
         }
+        
+        $file = Storage::disk('spaces')
+            ->putFile('event-image', $request->file('eventImage'), 'public');
+
+        $newEventImage = env('SPACES_ORIGIN_URL') .$file;
 
         $oldEventImage = str_replace(env('SPACES_ORIGIN_URL'),'',$event->image);
-        $newEventImage = $request->file('eventImage');
 
-        $exists = Storage::disk('spaces')->exists($oldEventImage);
-        if(!$exists){
-            return response()->json(
-                ['error'=>"Image doesn't exists please upload a new one again"], 422);
-        }
+        Storage::disk('spaces')->delete($oldEventImage);
 
-        $oldImage = explode('/',$oldEventImage);
+        $event->update(['image'=>$newEventImage]);
 
-        $newEventImage = $oldImage[0] . '/' . $newEventImage;
-
-        $response = Storage::disk('spaces')->move($oldEventImage, $newEventImage);
-
-        if(!$response){
-            return response()->json(
-                ['error'=>'User image not properly saved please upload a new one again'], 422);
-        }
-
-        $url = env('SPACES_ORIGIN_URL') .$newEventImage;
-        $event->update(['image'=>$url]);
-
-        return response()->json(['url' => $url], 200);
+        return response()->json(['url' => $newEventImage], 200);
 
     }
 
@@ -156,7 +144,7 @@ class EventController extends Controller {
           $roles['image'] = 'string|min:5|max:255';
 
           // user upload image from device
-          $userUploadedImage = (strpos($data['image'], env('SPACES_ORIGIN_URL'))) ? true : false;
+          $userUploadedImage = (strpos($data['image'], env('SPACES_ORIGIN_URL').'temp') !== false) ? true : false;
       }
 
       if(!empty($data['start_date'])){
