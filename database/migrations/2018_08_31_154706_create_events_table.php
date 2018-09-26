@@ -25,7 +25,7 @@ class CreateEventsTable extends Migration
             $table->increments('id');
             $table->integer('user_id')->unsigned();
             $table->boolean('published')->default(0);
-            $table->string('image', 100)->nullable();
+            $table->string('image', 256)->nullable();
             $table->string('title', 100);
             $table->dateTime('start_date')->nullable();
             $table->dateTime('end_date')->nullable();
